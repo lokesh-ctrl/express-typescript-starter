@@ -30,7 +30,7 @@ export class App {
     this.useContainers();
     await this.typeOrmCreateConnection();
     this.registerEvents();
-    this.registerCronJobs();
+    // this.registerCronJobs();
     this.serveStaticFiles();
     this.setupMiddlewares();
     this.registerSocketControllers();
