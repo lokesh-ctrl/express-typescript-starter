@@ -13,8 +13,9 @@ EXPOSE 3000
 FROM common-build-stage as development-build-stage
 
 ENV NODE_ENV development
-
 CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "migrate"]
+CMD ["npm", "run", "db:seed"]
 
 # Production build stage
 FROM common-build-stage as production-build-stage
