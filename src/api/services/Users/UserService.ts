@@ -1,12 +1,12 @@
 import { Service } from 'typedi';
 import { UserRepository } from '@api/repositories/Users/UserRepository';
 import { UserNotFoundException } from '@api/exceptions/Users/UserNotFoundException';
-import { EventDispatcher, EventDispatcherInterface } from '@base/decorators/EventDispatcher';
 import { InjectRepository } from 'typeorm-typedi-extensions';
+import { User } from '@base/api/models/Users/User';
 
 @Service()
 export class UserService {
-  constructor(@InjectRepository() private userRepository: UserRepository, @EventDispatcher() private eventDispatcher: EventDispatcherInterface) {
+  constructor(@InjectRepository() private userRepository: UserRepository) {
     //
   }
 
@@ -20,9 +20,6 @@ export class UserService {
 
   public async create(data: object) {
     let user = await this.userRepository.createUser(data);
-
-    this.eventDispatcher.dispatch('onUserCreate', user);
-
     return user;
   }
 
@@ -44,5 +41,20 @@ export class UserService {
     }
 
     return user;
+  }
+
+  public async getUserConversations(userId: number) {
+    let user = await User.findByIds([userId]);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+    return user;
+  }
+
+  public async setConversationToUser(userId: number, convId: number) {
+    let user = await this.userRepository.getOneById(userId);
+    if (!user) {
+      throw new UserNotFoundException();
+    }
   }
 }

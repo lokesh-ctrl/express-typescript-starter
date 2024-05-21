@@ -6,10 +6,12 @@ import { OpenAPI } from 'routing-controllers-openapi';
 import { RequestQueryParser } from 'typeorm-simple-query-parser';
 import { ProductCreateRequest } from '@base/api/requests/Products/ProductCreateRequest';
 import { ProductUpdateRequest } from '@base/api/requests/Products/ProductUpdateRequest';
+import { OnConnect, SocketController, ConnectedSocket, OnDisconnect, MessageBody, OnMessage } from 'socket-controllers';
 
 @Service()
 @OpenAPI({})
 @JsonController('/products')
+@SocketController()
 export class ProductController extends ControllerBase {
   public constructor(private productService: ProductService) {
     super();
@@ -44,5 +46,23 @@ export class ProductController extends ControllerBase {
   @HttpCode(204)
   public async delete(@Param('id') id: number) {
     return await this.productService.deleteOneById(id);
+  }
+
+  @OnConnect()
+  connection(@ConnectedSocket() socket: any) {
+    console.log('client connected');
+  }
+
+  @OnDisconnect()
+  disconnect(@ConnectedSocket() socket: any) {
+    console.log('client disconnected');
+  }
+
+  @OnMessage('save')
+  save(@ConnectedSocket() socket: any, @MessageBody() message: any) {
+    console.log('received message:', message);
+    console.log('setting id to the message and sending it back to the client');
+    message.id = 1;
+    socket.emit('message_saved', message);
   }
 }

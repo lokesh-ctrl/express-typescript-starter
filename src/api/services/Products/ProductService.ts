@@ -1,12 +1,11 @@
 import { Service } from 'typedi';
 import { ProductRepository } from '@api/repositories/Products/ProductRepository';
 import { UserNotFoundException } from '@api/exceptions/Users/UserNotFoundException';
-import { EventDispatcher, EventDispatcherInterface } from '@base/decorators/EventDispatcher';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 
 @Service()
 export class ProductService {
-  constructor(@InjectRepository() private productRepository: ProductRepository, @EventDispatcher() private eventDispatcher: EventDispatcherInterface) {
+  constructor(@InjectRepository() private productRepository: ProductRepository) {
     //
   }
 
@@ -20,9 +19,6 @@ export class ProductService {
 
   public async create(data: object) {
     let product = await this.productRepository.createProduct(data);
-
-    this.eventDispatcher.dispatch('onProductCreate', product);
-
     return product;
   }
 

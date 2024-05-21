@@ -1,8 +1,9 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { EntityBase } from '@base/infrastructure/abstracts/EntityBase';
 import { Exclude, Expose } from 'class-transformer';
 import { Role } from './Role';
 import { HashService } from '@base/infrastructure/services/hash/HashService';
+import Conversation from '../Conversation';
 
 @Entity({ name: 'users' })
 export class User extends EntityBase {
@@ -28,6 +29,10 @@ export class User extends EntityBase {
   @OneToOne(() => Role)
   @JoinColumn({ name: 'role_id' })
   role: Role;
+
+  @ManyToMany(() => Conversation, (conversation) => conversation.users)
+  @JoinTable()
+  conversations: Conversation[];
 
   @Expose({ name: 'full_name' })
   get fullName() {
