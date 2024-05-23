@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from './Users/User';
 import Conversation from './Conversation';
 import { EntityBase } from '@base/infrastructure/abstracts/EntityBase';
@@ -14,6 +14,9 @@ export class Message extends EntityBase {
   @Column()
   sender_id: number;
 
+  @Column()
+  receiver_id: number;
+
   @OneToOne(() => User)
   @JoinColumn({ name: 'sender_id' })
   sender: User;
@@ -28,6 +31,12 @@ export class Message extends EntityBase {
   @ManyToOne(() => Conversation, (conversation) => conversation.messages)
   @JoinColumn({ name: 'conversation_id' })
   conversation: Conversation;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
 
 export default Message;

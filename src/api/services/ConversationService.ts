@@ -9,7 +9,13 @@ export class ConversationService {
   constructor(@InjectRepository() private conversationRepository: ConversationRepository) {}
 
   public async getAll(resourceOptions?: object) {
-    return await this.conversationRepository.getManyAndCount();
+    const convRepo = Conversation.getRepository();
+    return await convRepo.find({ relations: ['users'] });
+  }
+
+  public async getUserConvs(userId: number) {
+    const convRepo = Conversation.getRepository();
+    return await convRepo.find({ relations: ['users'], where: { users: [userId] } });
   }
 
   public async findOneById(id: number, resourceOptions?: object) {

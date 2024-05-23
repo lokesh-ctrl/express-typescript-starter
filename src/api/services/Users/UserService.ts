@@ -3,6 +3,7 @@ import { UserRepository } from '@api/repositories/Users/UserRepository';
 import { UserNotFoundException } from '@api/exceptions/Users/UserNotFoundException';
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { User } from '@base/api/models/Users/User';
+import Conversation from '@base/api/models/Conversation';
 
 @Service()
 export class UserService {
@@ -44,11 +45,21 @@ export class UserService {
   }
 
   public async getUserConversations(userId: number) {
-    let user = await User.findByIds([userId]);
+    let userRepo = User.getRepository();
+    let user = await userRepo.find({ relations: ['conversations'], where: { id: userId } });
     if (!user) {
       throw new UserNotFoundException();
     }
-    return user;
+    if (user[0].conversations) {
+      const convIds: number[] = [];
+      user[0].conversations.forEach((conv) => {
+        convIds.push(conv.id);
+      });
+      let convRepo = Conversation.getRepository();
+      let convs = await convRepo.find({ relations: ['users'], where: { id: convIds } });
+      return { user: user[0], conversations: convs };
+    }
+    return user[0];
   }
 
   public async setConversationToUser(userId: number, convId: number) {
