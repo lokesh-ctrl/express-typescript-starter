@@ -51,12 +51,13 @@ export class UserService {
       throw new UserNotFoundException();
     }
     if (user[0].conversations) {
-      const convIds: number[] = [];
-      user[0].conversations.forEach((conv) => {
-        convIds.push(conv.id);
-      });
+      let convs: any[] = [];
       let convRepo = Conversation.getRepository();
-      let convs = await convRepo.find({ relations: ['users'], where: { id: convIds } });
+
+      for (const conversation of user[0].conversations) {
+        let conv = await convRepo.findOne(conversation.id, { relations: ['users'] });
+        convs.push(conv);
+      }
       return { user: user[0], conversations: convs };
     }
     return user[0];
