@@ -4,6 +4,7 @@ import { UserNotFoundException } from '@api/exceptions/Users/UserNotFoundExcepti
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { User } from '@base/api/models/Users/User';
 import Conversation from '@base/api/models/Conversation';
+import Message from '@base/api/models/Message';
 
 @Service()
 export class UserService {
@@ -53,10 +54,12 @@ export class UserService {
     if (user[0].conversations) {
       let convs: any[] = [];
       let convRepo = Conversation.getRepository();
+      let msgRepo = Message.getRepository();
 
       for (const conversation of user[0].conversations) {
         let conv = await convRepo.findOne(conversation.id, { relations: ['users'] });
-        convs.push(conv);
+        let lastMessage = await msgRepo.find({ where: { conversation_id: conv.id }, order: { createdAt: 'DESC' }, take: 1 });
+        convs.push({ lastMessage: lastMessage, ...conv });
       }
       return { user: user[0], conversations: convs };
     }
